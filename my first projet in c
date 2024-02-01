@@ -1,0 +1,485 @@
+#include <stdio.h>
+#include <stdlib.h>
+//#include <conio.h>
+#include <string.h>
+#include <stdbool.h>
+
+typedef struct date{
+    int day;
+    int mounth;
+    int year;}date;
+
+typedef struct nusers {
+    char name[50];
+    char fname[50];
+    char city[50];
+    char email[50];
+    char password[50];
+    date dateneccence;
+    int id;
+    float money;}nusers;
+
+nusers fill_files (int n){
+    FILE *files;
+    struct nusers x;
+        char filename[20];
+        sprintf(filename, "user%d.text", n+1);
+        files=fopen(filename, "w");
+        printf("Name:");
+        scanf("%s", x.name);
+        printf("FirstName:");
+        scanf("%s", x.fname);
+        printf("City:");
+        scanf("%s", x.city);
+        printf("Email:");
+        scanf("%s", x.email);
+        printf("Password:");
+        scanf("%s", x.password);
+        printf("Date of niccence dd/mm/yy:");
+        printf("\nDay:");
+        scanf("%d",&x.dateneccence.day);
+        printf("Mounth:");
+        scanf("%d",&x.dateneccence.mounth);
+        printf("Year:");
+        scanf("%d",&x.dateneccence.year);
+        system("cls");
+        printf("How much money do you want to deposit into your account (DA) ?\n");
+        scanf("%f",&x.money);
+        x.id=20240+n;
+        system("cls");
+        printf("Your ID is %d",x.id);
+        printf("\nwarrning:\n**. Don't Forget or miss your ID \n**. Don't give it to any one ");
+        printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n   =================\n   =   0.Back      =\n   =================\n");
+        fprintf(files ,"%d\n", x.id);
+        fprintf(files ,"%s\n", x.password);
+        fprintf(files ,"%s\n", x.name);
+        fprintf(files ,"%s\n", x.fname);
+        fprintf(files ,"%s\n", x.email);
+        fprintf(files ,"%s\n", x.city);
+        fprintf(files ,"%d/%d/%d\n", x.dateneccence.day,x.dateneccence.mounth,x.dateneccence.year);
+        fprintf(files ,"%f\n", x.money);
+        fclose(files);
+        return x;
+    }
+// function to compare between what you enter and what is exist in users files من أجل تأكييد الهوية.
+nusers get_info (int id){
+    FILE *file;
+    char filename[20];
+    nusers x;
+    sprintf(filename,"user%d.text",id-20240+1);
+    file=fopen(filename,"r");
+    fscanf(file,"%d",&x.id);
+    fscanf(file,"%s", x.password);
+    fscanf(file,"%s", x.name);
+    fscanf(file,"%s", x.fname);
+    fscanf(file,"%s", x.email);
+    fscanf(file,"%s", x.city);
+    fscanf(file,"%d/%d/%d\n",&x.dateneccence.day,&x.dateneccence.mounth,&x.dateneccence.year);
+    fscanf(file,"%f",&x.money);
+    fclose(file);
+    return x;
+    }
+int test_users(int id,char password[]){
+    FILE *files;
+    int i,flag=0;
+    char filename[20];
+    for(i=0;i<100;i++){
+       sprintf(filename, "user%d.text",i+1);
+       files=fopen(filename,"r");
+       char p1[50];int i1;
+       fscanf(files,"%d",&i1);
+       fscanf(files,"%s", p1);
+       fclose(files);
+       if(id==i1 && strcmp(password,p1)==0){flag=1;break;}
+    }
+    return flag;
+    }
+int test_admin(int id,char password[]){
+    FILE *files;
+    int flag=0;
+       files=fopen("admin.text","r");
+       char p1[50];
+       int i1;
+       fscanf(files,"%d",&i1);
+       fscanf(files,"%s", p1);
+       fclose(files);
+       if(id==i1 && strcmp(password,p1)==0){flag=1;}
+    return flag;
+    }
+void show_info(nusers x){
+    printf("\nName: %s", x.name);
+    printf("\nFirstName: %s", x.fname);
+    printf("\nEmail: %s", x.email);
+    printf("\nCity: %s", x.city);
+    printf("\nBirth Day: %d/%d/%d",x.dateneccence.day,x.dateneccence.mounth,x.dateneccence.year);
+    printf("\nID: %d", x.id);
+    }
+void reload(float x,int id){
+    int n;
+    n=id-20240+1;
+    char filename[20];
+    sprintf(filename,"user%d.text",n);
+    char buffer[50];
+    int replaceline=8;
+    int nowline=1;
+    bool keeprea=true;
+    FILE *file,*temp;
+    file=fopen(filename,"r");
+    temp=fopen("temp.text","w");
+
+    do{
+        fgets(buffer,50,file);
+        if(feof(file)) keeprea=false;
+        else{
+            if(replaceline==nowline){
+                fprintf(temp,"%f\n",x);
+                    }
+            else {fputs(buffer,temp);}
+        }
+        nowline++;
+    }while(keeprea);
+    fclose(file);
+    fclose(temp);
+    remove(filename);
+    rename("temp.text",filename);
+}
+float sum_usersmoney(){
+    int n;
+    FILE *num;
+    num=fopen("counter.text","r");
+    fscanf(num,"%d",&n);
+    fclose(num);
+    char filename[20];
+    int i;
+    float t,sum=0;
+    int read_line=7,now_line;
+    for(i=0;i<n;i++){
+        FILE *file;
+        sprintf(filename,"user%d.text",i+1);
+        file=fopen(filename,"r");
+        char buffer[50];
+        bool keep_read=true;
+        now_line=1;
+        do{
+            fgets(buffer,50,file);
+            if(feof(file)) keep_read=false;
+            else{
+                if(read_line==now_line){
+                    keep_read=false;
+                    fscanf(file,"%f",&t);
+                }
+            }
+            now_line++;
+        }while(keep_read);
+        fclose(file);
+        sum=sum+t;
+    }
+    return sum;
+}
+int number_users(){
+    int n;
+    FILE *file;
+    file=fopen("counter.text","r");
+    fscanf(file,"%d",&n);
+    fclose(file);
+    return n;
+    }
+void list_users(){
+    int n,i;
+    n=number_users();
+    nusers x;
+    for(i=0;i<n;i++){
+        x=get_info(20240+i);
+        printf("%d. %s %s\n",i+1,x.name,x.fname);
+    }
+
+}
+int test_id(int id){
+    FILE *files;
+    int i,flag=0;
+    char filename[20];
+    for(i=0;i<100;i++){
+       sprintf(filename, "user%d.text",i+1);
+       files=fopen(filename,"r");
+       int i1;
+       fscanf(files,"%d",&i1);
+       fclose(files);
+       if(id==i1){flag=1;break;}
+    }
+    return flag;
+}
+int main()
+{
+    // OPEN admin account
+    FILE *file;
+    file=fopen("admin.text","w");
+    fprintf(file,"2024\n");
+    fprintf(file,"1234");
+    fclose(file);
+    int choise,number=0;
+    // system("cls") is function used to clear the console and i use the libarry
+    etc1: system("cls");
+    printf("Chosse what you are:\n\n");
+    printf("  ============     ============\n  = 1.User   =     = 2.Admin  =\n  ============     ============\n");
+    scanf("%d",&choise);
+    if(choise==1){
+        etc2 :
+        system("cls");
+        printf(" ==================\n =  1.Signs up    =\n ==================\n\n");
+        printf(" ==================\n =  2.Logging in  =\n ==================\n\n");
+        printf(" ==================\n =  0.Back        =\n ==================\n\n");
+        scanf("%d",&choise);
+        if(choise==1){
+            system("cls");
+            // open counter.text to read number of users to use it to creat new ID
+            FILE *num;
+            num=fopen("counter.text", "r");
+            fscanf(num, "%d",&number);
+            fclose(num);
+            printf("To creat new account we need yours informations:\n");
+             // open counter.text to store number of users to next time to use it to creat new ID
+            fill_files(number);
+            number++;
+            FILE *fnum;
+            fnum=fopen("counter.text", "w");
+            fprintf(fnum, "%d", number);
+            fclose(fnum);
+            //the user must enter 1 to creat new account and 2 to enter to his account if have one and 0 to back
+            scanf("%d",&choise);
+            if(choise==0){
+                goto etc2;
+            }
+            else {printf("your choise is not found.");}}
+        else{
+            if(choise==2){
+                    system("cls");
+                    char p[50];int id;
+                    etc3:
+                    printf("\nID:");
+                    scanf("%d",&id);
+                    printf("Password:");
+                    scanf("%s", p);
+                    if(test_users(id,p)==1){
+                        etc4:
+                        system("cls");
+                        nusers entered_user;
+                        entered_user=get_info(id);
+                        printf("Wellcome %s %s\n\n", entered_user.name, entered_user.fname);
+                        printf(" ============================\n =  1.View your balance     =\n ============================\n");
+                        printf(" ===========================================================\n =  2.Deposit and withdraw funds to and from your account  =\n ===========================================================\n");
+                        printf(" =============================\n =  3.View your information  =\n =============================\n");
+                        printf(" =================\n =   0.Back      =\n =================\n");
+                        scanf("%d",&choise);
+                        if(choise==1){
+                            system("cls");
+                            printf("You Have in your account:\n\n");
+                            printf("   ===========================\n      %.2f   DA      \n   ===========================",entered_user.money);
+                            printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n   =================\n   =   0.Back      =\n   =================\n");
+                            scanf("%d",&choise);
+                            if (choise==0) goto etc4;
+                                      }
+                        else  {
+                            if (choise==2){
+                                    system("cls");
+                                    printf(" Chosse..... \n\n ===================    ===================    ===================\n");
+                                    printf(" =    1.Deposit    =    =   2.Withdraw    =    =     0.Back      =\n");
+                                    printf(" ===================    ===================    ===================");
+                                    scanf("%d",&choise);
+                                    if (choise==1){
+                                        system("cls");
+                                        float added_money;
+                                        printf("How much money do you want to deposit (DA)? ");
+                                        scanf("%f",&added_money);
+                                        entered_user.money=entered_user.money+added_money;
+                                        reload(entered_user.money,id);
+                                        printf("Now you have in your account:\n\n   ===========================\n      %.2f   DA      \n   ===========================",entered_user.money);
+                                        printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n   =================\n   =   0.Back      =\n   =================\n");
+                                        etc5:scanf("%d",&choise);
+                                        if(choise==0) goto etc4;
+                                        else {printf("your choise is not found");goto etc5;}
+                                    }
+                                    else{
+                                        if (choise==2){
+                                            system("cls");
+                                            float get_money;
+                                            printf("How much money do you want to withdraw (DA)? ");
+                                            scanf("%f",&get_money);
+                                            entered_user.money=entered_user.money-get_money;
+                                            reload(entered_user.money,id);
+                                            printf("Now you have in your account:\n\n   ===========================\n      %.2f   DA      \n   ===========================",entered_user.money);
+                                            printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n   =================\n   =   0.Back      =\n   =================\n");
+                                            etc6:scanf("%d",&choise);
+                                            if(choise==0) goto etc4;
+                                            else {printf("your choise is not found");goto etc6;}
+                                        }
+                                        else {
+                                            if(choise==0){goto etc4;}
+                                            else printf("Your choise is not found!!!!");
+                                        }
+                                    }
+                                    }
+
+                            else {
+                                if(choise==3){
+                                    system("cls");
+                                    show_info(entered_user);
+                                    printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n   =================\n   =   0.Back      =\n   =================\n");
+                                    scanf("%d",&choise);
+                                    if (choise==0) goto etc4;
+                                    else printf("your choise is not found");
+                                }
+                                else{
+                                    if(choise==0){goto etc2; }
+                                    else {
+                                        printf("your choise in not found");
+                                        goto etc4;
+                                    }
+                                }
+                            } }
+                                     }
+                    else {
+                        system("cls");
+                        printf("your email or password is wrong");
+                        goto etc3;
+                    }
+                          }
+            else{
+                if(choise==0){ goto etc1;}
+                else{
+                    printf("your chose is not found.");
+                    goto etc2;}
+                    }
+            }
+                  }
+    else {
+        if(choise==2){
+            int id;char pass[50];
+            system("cls");
+            etc9:
+            printf("ID:");
+            scanf("%d",&id);
+            printf("Password:");
+            scanf("%s", pass);
+            if (test_admin(id,pass)==1){
+                etc8:system("cls");
+                printf("----------------------------    Admin interface     --------------------------");
+                printf("\n\n  =================\n  =   1.Finance   =\n  =================");
+                printf("\n\n  =====================\n  =   2.About users   =\n  =====================");
+                printf("\n\n  =================\n  =   0.Back      =\n  =================\n");
+                scanf("%d",&choise);
+                if (choise==1){
+                    float total,bank_money=65000;
+                    etc7:
+                    system("cls");
+                    printf("Total client funds:\n\n");
+                    //sum_usersmoney();
+                    total=sum_usersmoney();
+                    printf("      ===================\n      = %f  DA  =\n      ===================\n\n",total);
+                    printf("Financial resources of the bank:\n\n");
+                    printf("     ====================\n     = %f  DA =\n     ====================",bank_money);
+                    printf("\n\n\n\n\n\n\n\nChoose.....\n");
+                    printf("  ===================================       =====================\n  =   1.View a customer's balance   =       =    0.Back        =\n  ===================================       =====================\n");
+                    scanf("%d",&choise);
+                    if(choise==1){
+                        system("cls");
+                        nusers entered_user;
+                        printf("ID of customer:");
+                        scanf("%d",&id);
+                        if(test_id(id)==1){
+                        // function to fill entered_user struct with user information who have the id entered
+                        entered_user=get_info(id);
+                        etc10:
+                        printf("%s %s have :",entered_user.name,entered_user.fname);
+                        printf("     \n     ====================\n     =  %f  DA   =\n     ====================",entered_user.money);
+                        printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n   =================\n   =   0.Back      =\n   =================\n");
+                        scanf("%d",&choise);
+                        if(choise==0) goto etc7;
+                        else goto etc10;
+                        }
+                        else {printf("this id is not exist.\n");goto etc7;}
+
+                    }
+                    else {
+                        if(choise==0){goto etc8;}
+                        else {
+                            printf("your choise is wrong");
+                            goto etc7;
+                        }
+                    }
+
+
+                }
+                else {
+                    if(choise==2){
+                        etc11:
+                        system("cls");
+                        printf("Number of users is :  %d\n\n",number_users());
+                        printf("  =================================\n  =   1.List of costumers         =\n  =================================\n");
+                        printf("  =================================\n  =   2.costumer's Information    =\n  =================================\n");
+                        printf("\n\n\n   =================\n   =   0.Back      =\n   =================\n");
+                        scanf("%d",&choise);
+                        if(choise==1){
+                            etc12:system("cls");
+                            // function to read all texts files and  show list of users
+                            list_users();
+                            printf("\n\n\n\n\n\n\n\n\n\n   =================\n   =   0.Back      =\n   =================\n");
+                            scanf("%d",&choise);
+                            if(choise==0){goto etc11;}
+                            else goto etc12;
+                        }
+                        else{
+                            if(choise==2){
+                                nusers x;
+                                int id;
+                                system("cls");
+                                etc13:printf("ID:");
+                                scanf("%d",&id);
+                                if(test_id(id)==1){
+                                    etc14:system("cls");
+                                    x=get_info(id);
+                                    printf("============================  user informations  =============================\n");
+                                    // function to all values of variables entre the struct .
+                                    show_info(x);
+                                    printf("\n\n\n\n\n\n\n\n\n\n\n\n  =================\n  =   0.Back      =\n  =================\n");
+                                    scanf("%d",&choise);
+                                    if(choise==0) goto etc11;
+                                    else {printf("your choise not found.");goto etc14;}
+
+                                }
+                                else {printf("this id is not exist.\n");goto etc13;}
+                            }
+                            else{
+                                if(choise==0){goto etc8;}
+                                else {
+                                    printf("your choise is wrong.");
+                                    goto etc12;
+                                }
+                            }
+                        }
+                    }
+                    else{
+                        if(choise==0) goto etc1;
+                    }
+                }
+            }
+            else {
+                printf("your id or password is wrong.\n");
+                goto etc9;
+            }
+        }
+        else{
+             printf("your choise is wrong.");
+             goto etc1;
+        }
+    }
+    printf("\n\n\n\n\n\n\n\n");
+    return 0;
+}
+
+
+
+
+
+
+
+
